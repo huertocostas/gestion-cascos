@@ -1,76 +1,137 @@
-# Gestión de Cascos 🏍️
+<div align="center">
 
-Base de datos MySQL para una tienda de venta de cascos de moto. Junta en un solo lugar el **stock**, los **clientes** y las **ventas**, y permite sacar reportes para saber qué reponer y quiénes son los mejores clientes.
+# 🏍️ Gestión de Cascos
 
-## ¿De qué trata?
+**Base de datos relacional para administrar el stock, los clientes y las ventas de una tienda de cascos de moto.**
 
-La tienda venía trabajando con anotaciones sueltas y sin un sistema centralizado. Eso traía problemas todos los días:
+![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![SQL](https://img.shields.io/badge/SQL-Script-CC2927?style=for-the-badge&logo=databricks&logoColor=white)
+![Normalización](https://img.shields.io/badge/Normalizada-3FN%20%2F%20BCNF-2EA44F?style=for-the-badge)
 
-- No se sabía con exactitud cuántos cascos quedaban de cada modelo.
-- Se perdía el registro de qué compraba cada cliente.
-- No había forma rápida de saber qué marcas o modelos se vendían más para volver a pedirlos a los proveedores.
+[¿De qué trata?](#-de-qué-trata) •
+[¿Qué resuelve?](#-qué-resuelve) •
+[Inicio rápido](#-inicio-rápido) •
+[Modelo de datos](#-modelo-de-datos) •
+[Reportes](#-reportes-incluidos) •
+[Decisiones de diseño](#-decisiones-de-diseño)
 
-Este proyecto es la base de datos que resuelve eso.
+</div>
 
-## ¿Qué resuelve?
+---
 
-- **Stock al instante:** se puede consultar el stock disponible por marca, categoría, talle y color.
-- **Historial de clientes:** guarda los datos de cada cliente y todas sus compras.
-- **Registro detallado de ventas:** cada venta guarda qué cascos se llevaron, cuántas unidades y a qué precio.
-- **Alertas de reposición:** muestra los cascos con menos de 5 unidades en stock.
-- **Reportes:** ranking de mejores clientes, cascos más vendidos, ingresos por marca y por categoría (con porcentajes) y precios promedio por categoría.
+## 📖 ¿De qué trata?
 
-## Estructura de la base
+Una tienda de cascos y accesorios llevaba todo en **anotaciones sueltas**, sin un sistema centralizado. En el día a día eso significaba:
 
-| Tabla | Qué guarda |
+| ❌ Antes | ✅ Con esta base de datos |
 |---|---|
-| `marcas` | Marcas de cascos y su país de origen |
-| `categorias` | Tipos de casco (Integral, Modular, Cross) |
-| `productos` | Cada casco: código, nombre, marca, categoría, talle, color, precio y stock |
-| `clientes` | DNI, nombre, apellido, teléfono, email, ciudad y fecha de registro |
-| `ventas` | Cada compra: cliente, fecha, total y estado (`pagada`, `pendiente`, `cancelada`) |
-| `detalle_ventas` | Qué productos tiene cada venta, la cantidad y el precio unitario |
+| No se sabía cuántos cascos quedaban de cada modelo | Stock al instante por marca, categoría, talle y color |
+| Se perdía qué había comprado cada cliente | Historial completo de compras por cliente |
+| Las ventas se anotaban sin detalle | Cada venta guarda qué cascos, cuántos y a qué precio |
+| Reponer stock era a ojo | Alerta automática de cascos con menos de 5 unidades |
+| No se sabía qué se vendía más | Rankings de cascos, clientes, marcas y categorías |
 
-`detalle_ventas` resuelve la relación N:M entre ventas y productos: una venta puede tener varios cascos y un casco puede estar en varias ventas.
+Este proyecto es la base de datos que reúne **stock, clientes y ventas en un solo lugar** y responde las preguntas que el negocio necesita para decidir.
 
-El modelo está normalizado hasta **3FN/BCNF**: los datos de una marca o categoría están en un solo lugar, así que si cambian se modifican una sola vez.
+## 🎯 ¿Qué resuelve?
 
-## Reglas y decisiones de diseño
+- 📦 **Inventario** — catálogo de cascos con código, marca, categoría, talle, color, precio y stock.
+- 👥 **Clientes** — datos de contacto y todo su historial de compras.
+- 🧾 **Ventas** — comprobantes con estado (`pagada`, `pendiente`, `cancelada`) y el detalle de cada producto vendido.
+- 🔔 **Reposición** — una vista lista los modelos que se están agotando.
+- 📊 **Reportes** — mejores clientes, cascos más vendidos, ingresos por marca y por categoría (con porcentajes) y precios promedio.
+- 🛡️ **Datos confiables** — validaciones, claves únicas y transacciones para que la información no se rompa.
 
-- **Sin duplicados:** no puede haber dos clientes con el mismo DNI o email, dos productos con el mismo código, ni dos marcas o categorías con el mismo nombre.
-- **Protección del historial:** no se puede borrar una marca, categoría o producto que ya tenga ventas (`ON DELETE RESTRICT`).
-- **Validaciones automáticas:** la base rechaza precios negativos o en cero, cantidades inválidas y stock negativo (`CHECK`), así que no se puede vender más de lo que hay.
-- **Transacciones seguras:** registrar una venta y descontar el stock se hace en una sola transacción. Si algo falla, se deshace todo.
-- **Precio histórico:** el precio se guarda en `detalle_ventas` al momento de vender. Si después sube el precio del casco, las ventas viejas no cambian.
-- **Ventas canceladas:** no descuentan stock.
+## 🚀 Inicio rápido
 
-## Vistas
+**Requisitos:** MySQL 8.0 o superior (por ejemplo con MySQL Workbench).
 
-| Vista | Para qué sirve |
+```bash
+git clone https://github.com/huertocostas/gestion-cascos.git
+cd gestion-cascos
+mysql -u root -p < sql/gestion_cascos.sql
+```
+
+O desde **MySQL Workbench**: abrir [`sql/gestion_cascos.sql`](sql/gestion_cascos.sql) y ejecutar todo el script (⚡).
+
+El script, en orden:
+
+1. Crea la base `gestion_cascos` desde cero.
+2. Crea las 6 tablas con sus claves, restricciones e índices.
+3. Carga datos de ejemplo: 7 marcas, 3 categorías, 14 cascos, 4 clientes y varias ventas.
+4. Crea 4 vistas de reportes.
+5. Corre las consultas de ejemplo y una venta dentro de una transacción.
+
+> [!WARNING]
+> El script empieza con `DROP DATABASE IF EXISTS gestion_cascos`: si ya tenías esa base, se borra.
+
+Después probá, por ejemplo:
+
+```sql
+use gestion_cascos;
+select * from vw_stock_bajo;           -- qué hay que reponer
+select * from vw_clientes_frecuentes;  -- quiénes son los mejores clientes
+```
+
+## 🗂️ Modelo de datos
+
+```
+gestion-cascos/
+├── README.md
+└── sql/
+    └── gestion_cascos.sql   ← tablas, datos de ejemplo, vistas y consultas
+```
+
+| Tabla | Qué guarda | Claves |
+|---|---|---|
+| `marcas` | Marcas y país de origen | `nombre` único |
+| `categorias` | Tipos de casco: Integral, Modular, Cross | `nombre` único |
+| `productos` | Cada casco: código, nombre, talle, color, precio y stock | `codigo` único · FK a marca y categoría |
+| `clientes` | DNI, nombre, apellido, teléfono, email, ciudad y fecha de registro | `dni` y `email` únicos |
+| `ventas` | Cliente, fecha, total y estado de cada compra | FK a cliente |
+| `detalle_ventas` | Productos de cada venta, cantidad y precio unitario | FK a venta y producto |
+
+Las relaciones:
+
+- Una **marca** y una **categoría** tienen muchos productos.
+- Un **cliente** hace muchas ventas.
+- **Ventas ↔ productos** es N:M: una venta puede tener varios cascos y un casco puede aparecer en muchas ventas. Se resuelve con `detalle_ventas`, que además guarda la cantidad y el precio de ese momento.
+
+El modelo está normalizado hasta **3FN / BCNF**: los datos de una marca o categoría viven en un solo lugar, así que si cambian se actualizan una sola vez.
+
+## 📊 Reportes incluidos
+
+### Vistas listas para usar
+
+| Vista | Responde a |
 |---|---|
-| `vw_detalle_ventas` | Qué compró cada cliente: casco, marca, cantidad, precio y subtotal |
-| `vw_stock_bajo` | Cascos con menos de 5 unidades (qué hay que reponer) |
-| `vw_clientes_frecuentes` | Ranking de clientes por total gastado en compras pagadas |
-| `vw_top_cascos` | Cascos más vendidos e ingresos que generaron |
+| `vw_detalle_ventas` | ¿Qué compró cada cliente, de qué marca, cuántos y a qué precio? |
+| `vw_stock_bajo` | ¿Qué cascos tienen menos de 5 unidades? |
+| `vw_clientes_frecuentes` | ¿Quiénes gastaron más en compras pagadas? |
+| `vw_top_cascos` | ¿Cuáles son los cascos más vendidos y cuánto facturaron? |
 
-## Consultas destacadas
+### Ejemplos de resultados
 
-**Historial completo de compras**
-```sql
-select * from vw_detalle_ventas;
-```
+**🔔 Cascos que se están agotando** — `select * from vw_stock_bajo;`
 
-**Cascos que se están agotando**
-```sql
-select * from vw_stock_bajo;
-```
+| codigo | nombre | talle | stock | precio_venta |
+|---|---|---|---|---|
+| CAS-LS2-FUS | LS2 Integral Fusion | XL | 0 | 295000.00 |
+| CAS-FXX-BR | FXX Integral BR | XL | 1 | 165000.00 |
+| CAS-AXX-BL | AXXIS Integral Blanco | XL | 1 | 135000.00 |
+| … | … | … | … | … |
 
-**Ranking de mejores clientes**
-```sql
-select * from vw_clientes_frecuentes;
-```
+**👑 Ranking de clientes** — `select * from vw_clientes_frecuentes;`
 
-**Categorías con precio promedio mayor a $200.000 (HAVING)**
+| dni | cliente | compras_realizadas | total_gastado |
+|---|---|---|---|
+| 12344567 | Benjamin Ruiz | 1 | 295000.00 |
+| 23467899 | Sofia Ruiz | 1 | 289000.00 |
+| 89556623 | Luana Guzman | 1 | 289000.00 |
+| 89663511 | Lautaro Pereyra | 0 | 0.00 |
+
+**💰 Categorías con precio promedio mayor a $200.000** (`GROUP BY` + `HAVING`)
+
 ```sql
 select
     cat.nombre as categoria,
@@ -86,7 +147,8 @@ having avg(p.precio_venta) > 200000;
 | Cross | 215000.00 |
 | Integral | 206640.00 |
 
-**Porcentaje de ingresos por marca (CTE)**
+**📈 Porcentaje de ingresos por marca** (CTE con `WITH`)
+
 ```sql
 with ingresos_por_marca as (
     select
@@ -107,13 +169,38 @@ from ingresos_por_marca
 order by ingresos desc;
 ```
 
-El script también incluye consultas con `AVG`, `MIN`, `MAX`, `COUNT`, `IN`, `EXISTS` / `NOT EXISTS`, ventas del último mes e ingresos por categoría.
+### Conceptos de SQL que se ven en el script
 
-## Cómo usarla
+| Tema | Dónde se usa |
+|---|---|
+| `JOIN` de varias tablas | Detalle de ventas, ingresos por categoría |
+| `GROUP BY` + `HAVING` | Categorías caras, clientes con más de una compra |
+| `AVG`, `MIN`, `MAX`, `COUNT` | Precios por categoría |
+| `IN` (con lista y con subconsulta) | Cascos de marcas italianas o españolas, clientes que compraron integrales |
+| `EXISTS` / `NOT EXISTS` | Clientes que compraron y clientes que nunca compraron |
+| CTE (`WITH`) | Porcentaje de ingresos por marca |
+| Vistas (`CREATE VIEW`) | Los 4 reportes principales |
+| Transacciones | Registrar una venta y descontar stock juntos |
+| Funciones de fecha | Ventas del último mes |
 
-1. Abrir MySQL Workbench (o cualquier cliente MySQL 8+).
-2. Ejecutar el script [`sql/gestion_cascos.sql`](sql/gestion_cascos.sql).
+## 🧠 Decisiones de diseño
 
-El script crea la base `gestion_cascos` desde cero, carga datos de ejemplo (marcas, categorías, cascos, clientes y ventas), crea las vistas y corre las consultas de ejemplo.
+- 🔑 **Sin duplicados** — no puede haber dos clientes con el mismo DNI o email, dos productos con el mismo código, ni dos marcas o categorías con el mismo nombre.
+- 🛡️ **El historial no se pierde** — no se puede borrar una marca, categoría o producto que ya tenga ventas (`ON DELETE RESTRICT`). Si se borra una venta, su detalle se borra con ella (`ON DELETE CASCADE`).
+- ✅ **Validaciones automáticas** — `CHECK` rechaza precios de cero o negativos, cantidades inválidas y stock negativo, así que no se puede vender más de lo que hay.
+- 🔄 **Transacciones seguras** — la venta, su detalle, el total y el descuento de stock se hacen en un solo bloque (`START TRANSACTION … COMMIT`). Si algo falla, no queda nada a medias.
+- 🏷️ **Precio histórico** — el precio se guarda en `detalle_ventas` al momento de vender. Si después sube el precio del casco, las ventas viejas no cambian.
+- 🚫 **Ventas canceladas** — no descuentan stock.
+- ⚡ **Índices** — sobre el nombre del producto y la fecha de venta, para que las búsquedas y los reportes por fecha sean más rápidos.
 
-> ⚠️ El script empieza con `drop database if exists gestion_cascos`, así que borra la base si ya existía.
+## 🛣️ Ideas para seguir
+
+¿Te interesa el proyecto? Algunas mejoras posibles:
+
+- [ ] Triggers que descuenten stock y recalculen el total automáticamente al registrar una venta.
+- [ ] Procedimiento almacenado `registrar_venta` que valide el stock antes de vender.
+- [ ] Tabla de proveedores y órdenes de compra para la reposición.
+- [ ] Usuarios y permisos distintos para vendedor y administrador.
+- [ ] Una app web o de escritorio que use esta base.
+
+Los issues y pull requests son bienvenidos. 🙌
