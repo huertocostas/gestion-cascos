@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏍️ Gestión de Cascos
+# Gestión de Cascos
 
 **Base de datos relacional para administrar el stock, los clientes y las ventas de una tienda de cascos de moto.**
 
@@ -8,22 +8,22 @@
 ![SQL](https://img.shields.io/badge/SQL-Script-CC2927?style=for-the-badge&logo=databricks&logoColor=white)
 ![Normalización](https://img.shields.io/badge/Normalizada-3FN%20%2F%20BCNF-2EA44F?style=for-the-badge)
 
-[¿De qué trata?](#-de-qué-trata) •
-[¿Qué resuelve?](#-qué-resuelve) •
-[Inicio rápido](#-inicio-rápido) •
-[Modelo de datos](#-modelo-de-datos) •
-[Reportes](#-reportes-incluidos) •
-[Decisiones de diseño](#-decisiones-de-diseño)
+[¿De qué trata?](#de-qué-trata) •
+[¿Qué resuelve?](#qué-resuelve) •
+[Inicio rápido](#inicio-rápido) •
+[Modelo de datos](#modelo-de-datos) •
+[Reportes](#reportes-incluidos) •
+[Decisiones de diseño](#decisiones-de-diseño)
 
 </div>
 
 ---
 
-## 📖 ¿De qué trata?
+## ¿De qué trata?
 
 Una tienda de cascos y accesorios llevaba todo en **anotaciones sueltas**, sin un sistema centralizado. En el día a día eso significaba:
 
-| ❌ Antes | ✅ Con esta base de datos |
+| Antes | Con esta base de datos |
 |---|---|
 | No se sabía cuántos cascos quedaban de cada modelo | Stock al instante por marca, categoría, talle y color |
 | Se perdía qué había comprado cada cliente | Historial completo de compras por cliente |
@@ -33,16 +33,16 @@ Una tienda de cascos y accesorios llevaba todo en **anotaciones sueltas**, sin u
 
 Este proyecto es la base de datos que reúne **stock, clientes y ventas en un solo lugar** y responde las preguntas que el negocio necesita para decidir.
 
-## 🎯 ¿Qué resuelve?
+## ¿Qué resuelve?
 
-- 📦 **Inventario** — catálogo de cascos con código, marca, categoría, talle, color, precio y stock.
-- 👥 **Clientes** — datos de contacto y todo su historial de compras.
-- 🧾 **Ventas** — comprobantes con estado (`pagada`, `pendiente`, `cancelada`) y el detalle de cada producto vendido.
-- 🔔 **Reposición** — una vista lista los modelos que se están agotando.
-- 📊 **Reportes** — mejores clientes, cascos más vendidos, ingresos por marca y por categoría (con porcentajes) y precios promedio.
-- 🛡️ **Datos confiables** — validaciones, claves únicas y transacciones para que la información no se rompa.
+- **Inventario** — catálogo de cascos con código, marca, categoría, talle, color, precio y stock.
+- **Clientes** — datos de contacto y todo su historial de compras.
+- **Ventas** — comprobantes con estado (`pagada`, `pendiente`, `cancelada`) y el detalle de cada producto vendido.
+- **Reposición** — una vista lista los modelos que se están agotando.
+- **Reportes** — mejores clientes, cascos más vendidos, ingresos por marca y por categoría (con porcentajes) y precios promedio.
+- **Datos confiables** — validaciones, claves únicas y transacciones para que la información no se rompa.
 
-## 🚀 Inicio rápido
+## Inicio rápido
 
 **Requisitos:** MySQL 8.0 o superior (por ejemplo con MySQL Workbench).
 
@@ -52,7 +52,7 @@ cd gestion-cascos
 mysql -u root -p < sql/gestion_cascos.sql
 ```
 
-O desde **MySQL Workbench**: abrir [`sql/gestion_cascos.sql`](sql/gestion_cascos.sql) y ejecutar todo el script (⚡).
+O desde **MySQL Workbench**: abrir [`sql/gestion_cascos.sql`](sql/gestion_cascos.sql) y ejecutar todo el script.
 
 El script, en orden:
 
@@ -73,7 +73,7 @@ select * from vw_stock_bajo;           -- qué hay que reponer
 select * from vw_clientes_frecuentes;  -- quiénes son los mejores clientes
 ```
 
-## 🗂️ Modelo de datos
+## Modelo de datos
 
 ```
 gestion-cascos/
@@ -99,7 +99,7 @@ Las relaciones:
 
 El modelo está normalizado hasta **3FN / BCNF**: los datos de una marca o categoría viven en un solo lugar, así que si cambian se actualizan una sola vez.
 
-## 📊 Reportes incluidos
+## Reportes incluidos
 
 ### Vistas listas para usar
 
@@ -112,7 +112,7 @@ El modelo está normalizado hasta **3FN / BCNF**: los datos de una marca o categ
 
 ### Ejemplos de resultados
 
-**🔔 Cascos que se están agotando** — `select * from vw_stock_bajo;`
+**Cascos que se están agotando** — `select * from vw_stock_bajo;`
 
 | codigo | nombre | talle | stock | precio_venta |
 |---|---|---|---|---|
@@ -121,7 +121,7 @@ El modelo está normalizado hasta **3FN / BCNF**: los datos de una marca o categ
 | CAS-AXX-BL | AXXIS Integral Blanco | XL | 1 | 135000.00 |
 | … | … | … | … | … |
 
-**👑 Ranking de clientes** — `select * from vw_clientes_frecuentes;`
+**Ranking de clientes** — `select * from vw_clientes_frecuentes;`
 
 | dni | cliente | compras_realizadas | total_gastado |
 |---|---|---|---|
@@ -133,7 +133,7 @@ El modelo está normalizado hasta **3FN / BCNF**: los datos de una marca o categ
 ### Más consultas
 
 <details>
-<summary><b>💰 Categorías con precio promedio mayor a $200.000</b> (<code>GROUP BY</code> + <code>HAVING</code>)</summary>
+<summary><b>Categorías con precio promedio mayor a $200.000</b> (<code>GROUP BY</code> + <code>HAVING</code>)</summary>
 
 ```sql
 select
@@ -153,7 +153,7 @@ having avg(p.precio_venta) > 200000;
 </details>
 
 <details>
-<summary><b>📈 Porcentaje de ingresos por marca</b> (CTE con <code>WITH</code>)</summary>
+<summary><b>Porcentaje de ingresos por marca</b> (CTE con <code>WITH</code>)</summary>
 
 ```sql
 with ingresos_por_marca as (
@@ -178,7 +178,7 @@ order by ingresos desc;
 </details>
 
 <details>
-<summary><b>🧩 Conceptos de SQL que se ven en el script</b></summary>
+<summary><b>Conceptos de SQL que se ven en el script</b></summary>
 
 
 | Tema | Dónde se usa |
@@ -195,17 +195,17 @@ order by ingresos desc;
 
 </details>
 
-## 🧠 Decisiones de diseño
+## Decisiones de diseño
 
-- 🔑 **Sin duplicados** — no puede haber dos clientes con el mismo DNI o email, dos productos con el mismo código, ni dos marcas o categorías con el mismo nombre.
-- 🛡️ **El historial no se pierde** — no se puede borrar una marca, categoría o producto que ya tenga ventas (`ON DELETE RESTRICT`). Si se borra una venta, su detalle se borra con ella (`ON DELETE CASCADE`).
-- ✅ **Validaciones automáticas** — `CHECK` rechaza precios de cero o negativos, cantidades inválidas y stock negativo, así que no se puede vender más de lo que hay.
-- 🔄 **Transacciones seguras** — la venta, su detalle, el total y el descuento de stock se hacen en un solo bloque (`START TRANSACTION … COMMIT`). Si algo falla, no queda nada a medias.
-- 🏷️ **Precio histórico** — el precio se guarda en `detalle_ventas` al momento de vender. Si después sube el precio del casco, las ventas viejas no cambian.
-- 🚫 **Ventas canceladas** — no descuentan stock.
-- ⚡ **Índices** — sobre el nombre del producto y la fecha de venta, para que las búsquedas y los reportes por fecha sean más rápidos.
+- **Sin duplicados** — no puede haber dos clientes con el mismo DNI o email, dos productos con el mismo código, ni dos marcas o categorías con el mismo nombre.
+- **El historial no se pierde** — no se puede borrar una marca, categoría o producto que ya tenga ventas (`ON DELETE RESTRICT`). Si se borra una venta, su detalle se borra con ella (`ON DELETE CASCADE`).
+- **Validaciones automáticas** — `CHECK` rechaza precios de cero o negativos, cantidades inválidas y stock negativo, así que no se puede vender más de lo que hay.
+- **Transacciones seguras** — la venta, su detalle, el total y el descuento de stock se hacen en un solo bloque (`START TRANSACTION … COMMIT`). Si algo falla, no queda nada a medias.
+- **Precio histórico** — el precio se guarda en `detalle_ventas` al momento de vender. Si después sube el precio del casco, las ventas viejas no cambian.
+- **Ventas canceladas** — no descuentan stock.
+- **Índices** — sobre el nombre del producto y la fecha de venta, para que las búsquedas y los reportes por fecha sean más rápidos.
 
-## 🛣️ Ideas para seguir
+## Ideas para seguir
 
 ¿Te interesa el proyecto? Algunas mejoras posibles:
 
@@ -215,4 +215,4 @@ order by ingresos desc;
 - [ ] Usuarios y permisos distintos para vendedor y administrador.
 - [ ] Una app web o de escritorio que use esta base.
 
-Los issues y pull requests son bienvenidos. 🙌
+Los issues y pull requests son bienvenidos.
