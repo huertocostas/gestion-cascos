@@ -130,7 +130,10 @@ El modelo está normalizado hasta **3FN / BCNF**: los datos de una marca o categ
 | 89556623 | Luana Guzman | 1 | 289000.00 |
 | 89663511 | Lautaro Pereyra | 0 | 0.00 |
 
-**💰 Categorías con precio promedio mayor a $200.000** (`GROUP BY` + `HAVING`)
+### Más consultas
+
+<details>
+<summary><b>💰 Categorías con precio promedio mayor a $200.000</b> (<code>GROUP BY</code> + <code>HAVING</code>)</summary>
 
 ```sql
 select
@@ -147,7 +150,10 @@ having avg(p.precio_venta) > 200000;
 | Cross | 215000.00 |
 | Integral | 206640.00 |
 
-**📈 Porcentaje de ingresos por marca** (CTE con `WITH`)
+</details>
+
+<details>
+<summary><b>📈 Porcentaje de ingresos por marca</b> (CTE con <code>WITH</code>)</summary>
 
 ```sql
 with ingresos_por_marca as (
@@ -169,7 +175,11 @@ from ingresos_por_marca
 order by ingresos desc;
 ```
 
-### Conceptos de SQL que se ven en el script
+</details>
+
+<details>
+<summary><b>🧩 Conceptos de SQL que se ven en el script</b></summary>
+
 
 | Tema | Dónde se usa |
 |---|---|
@@ -182,6 +192,8 @@ order by ingresos desc;
 | Vistas (`CREATE VIEW`) | Los 4 reportes principales |
 | Transacciones | Registrar una venta y descontar stock juntos |
 | Funciones de fecha | Ventas del último mes |
+
+</details>
 
 ## 🧠 Decisiones de diseño
 
